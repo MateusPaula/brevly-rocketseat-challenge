@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  db:
+    image: bitnami/postgresql:latest
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=docker
+      - POSTGRES_DB=brevly
+    ports:
+      - 5432:5432
+    volumes:
+      - './src/docker:/docker-entrypoint-initdb.d'

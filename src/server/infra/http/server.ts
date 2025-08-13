@@ -5,6 +5,8 @@ import swaggerUI from '@fastify/swagger-ui';
 import { validatorCompiler, serializerCompiler, jsonSchemaTransform, hasZodFastifySchemaValidationErrors } from "fastify-type-provider-zod";
 import { getAllLinksRoute } from "@/server/infra/http/routes/get-all-links";
 import { increaseLinkViewRoute } from "@/server/infra/http/routes/increase-link-views";
+import { env } from "@/server/env";
+import { createShortLink } from "./routes/create-short-link";
 
 
 const server = fastify();
@@ -21,6 +23,7 @@ server.setErrorHandler((error, request, reply) => {
         })
     }
 
+    console.error(error)
     return reply.status(500).send({ message: 'Internal server error' })
 })
 
@@ -44,7 +47,9 @@ server.register(swaggerUI, {
 
 server.register(getAllLinksRoute)
 server.register(increaseLinkViewRoute)
+server.register(createShortLink)
 
-server.listen({ port: 3333 }).then(() => {
+
+server.listen({ port: 3333, host: '0.0.0.0' }).then(() => {
     console.log('HTTP server running!')
 })
