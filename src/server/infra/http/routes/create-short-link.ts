@@ -2,6 +2,7 @@ import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import z from "zod";
 import { db } from "@/server/infra/db";
 import { schema } from "@/server/infra/db/schemas";
+import { createLink } from "@/server/functions/create-short-link";
 
 export const createShortLink: FastifyPluginAsyncZod = async (server) => {
     server.post('/links', {
@@ -21,13 +22,18 @@ export const createShortLink: FastifyPluginAsyncZod = async (server) => {
             }
         }
     }, async (request, reply) => {
-        await db.insert(schema.links).values({
-            originalUrl: 'https://www.google.com',
-            shortUrl: 'https://brev.ly/google',
-            visits: 0,
-        })
+        const { originalUrl } = request.body
+
+        if (!originalUrl) {
+            return reply.status(400).send({
+                message: 'Original URL is required.',
+            })
+        }
+
+        const { shortUrl } = await createLink({ originalUrl });
+
         return reply.status(201).send({
-            shortUrl: 'https://brev.ly/google',
+            shortUrl,
         })
     })
 }
