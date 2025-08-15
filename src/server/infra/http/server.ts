@@ -1,55 +1,56 @@
-import { fastify } from "fastify";
-import {fastifyCors} from '@fastify/cors';
-import {fastifySwagger} from '@fastify/swagger';
-import swaggerUI from '@fastify/swagger-ui';
-import { validatorCompiler, serializerCompiler, jsonSchemaTransform, hasZodFastifySchemaValidationErrors } from "fastify-type-provider-zod";
-import { getAllLinksRoute } from "@/server/infra/http/routes/get-all-links";
-import { increaseLinkViewRoute } from "@/server/infra/http/routes/increase-link-views";
-import { env } from "@/server/env";
-import { createShortLink } from "./routes/create-short-link";
+import { fastifyCors } from '@fastify/cors'
+import { fastifySwagger } from '@fastify/swagger'
+import swaggerUI from '@fastify/swagger-ui'
+import { fastify } from 'fastify'
+import {
+  hasZodFastifySchemaValidationErrors,
+  jsonSchemaTransform,
+  serializerCompiler,
+  validatorCompiler,
+} from 'fastify-type-provider-zod'
+import { getLinksRoute } from '@/server/infra/http/routes/get-links'
+import { increaseLinkViewRoute } from '@/server/infra/http/routes/increase-link-views'
+import { createShortLinkRoute } from './routes/create-short-link'
 
+const server = fastify()
 
-const server = fastify();
-
-server.setValidatorCompiler(validatorCompiler);
+server.setValidatorCompiler(validatorCompiler)
 server.setSerializerCompiler(serializerCompiler)
 
-
 server.setErrorHandler((error, request, reply) => {
-    if (hasZodFastifySchemaValidationErrors(error)) {
-        return reply.status(400).send({
-            message: 'Validation error',
-            issues: error.validation
-        })
-    }
+  if (hasZodFastifySchemaValidationErrors(error)) {
+    return reply.status(400).send({
+      message: 'Validation error',
+      issues: error.validation,
+    })
+  }
 
-    console.error(error)
-    return reply.status(500).send({ message: 'Internal server error' })
+  console.error(error)
+  return reply.status(500).send({ message: 'Internal server error' })
 })
 
 server.register(fastifyCors, {
-    origin: '*'
+  origin: '*',
 })
 
 server.register(fastifySwagger, {
-    openapi: {
-        info: {
-            title: 'Link Shortener API',
-            version: '1.0.0'
-        }
+  openapi: {
+    info: {
+      title: 'Link Shortener API',
+      version: '1.0.0',
     },
-    transform: jsonSchemaTransform,
+  },
+  transform: jsonSchemaTransform,
 })
 
 server.register(swaggerUI, {
-    routePrefix: '/docs'
+  routePrefix: '/docs',
 })
 
-server.register(getAllLinksRoute)
+server.register(getLinksRoute)
 server.register(increaseLinkViewRoute)
-server.register(createShortLink)
-
+server.register(createShortLinkRoute)
 
 server.listen({ port: 3333, host: '0.0.0.0' }).then(() => {
-    console.log('HTTP server running!')
+  console.log('HTTP server running!')
 })
