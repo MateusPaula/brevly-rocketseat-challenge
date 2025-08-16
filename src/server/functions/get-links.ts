@@ -2,7 +2,7 @@ import { asc, count, desc, ilike } from 'drizzle-orm'
 import z from 'zod'
 import { db } from '@/server/infra/db'
 import { schema } from '@/server/infra/db/schemas'
-import { Either, makeRight } from '../infra/shared/either'
+import { type Either, makeRight } from '@/server/infra/shared/either'
 
 const getLinksInput = z.object({
   searchQuery: z.string().optional(),
@@ -51,7 +51,7 @@ export async function getLinks(
         if (sortBy && sortDirection === 'desc') {
           return desc(fields[sortBy])
         }
-        return asc(fields.createdAt)
+        return desc(fields.createdAt)
       })
       .offset((page - 1) * pageSize)
       .limit(pageSize),
