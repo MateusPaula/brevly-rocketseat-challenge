@@ -1,5 +1,5 @@
 import { asc, count, desc, ilike } from 'drizzle-orm'
-import z from 'zod'
+import { z } from 'zod'
 import { db } from '@/server/infra/db'
 import { schema } from '@/server/infra/db/schemas'
 import { type Either, makeRight } from '@/server/infra/shared/either'

@@ -1,11 +1,38 @@
-import { S3Client } from '@aws-sdk/client-s3'
+import { randomUUID } from 'node:crypto'
+import { Upload } from '@aws-sdk/lib-storage'
+import { z } from 'zod'
 import { env } from '@/server/env'
+import { r2 } from './client'
 
-export const r2 = new S3Client({
-  region: 'auto',
-  endpoint: `https://${env.CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: env.CLOUDFLARE_ACCESS_KEY_ID,
-    secretAccessKey: env.CLOUDFLARE_SECRET_ACCESS_KEY,
-  },
+const uploadCsvToStorageInput = z.object({
+  content: z.string(),
+  contentType: z.string(),
+  folder: z.enum(['downloads']),
+  fileName: z.string(),
 })
+
+type UploadCsvToStorageInput = z.input<typeof uploadCsvToStorageInput>
+
+export async function uploadCsvToStorage(input: UploadCsvToStorageInput) {
+  const { content, contentType, folder, fileName } =
+    uploadCsvToStorageInput.parse(input)
+
+  const uniqueFileName = `${folder}/${randomUUID()}-${fileName}`
+
+  const upload = new Upload({
+    client: r2,
+    params: {
+      Bucket: env.CLOUDFLARE_BUCKET,
+      Key: uniqueFileName,
+      Body: content,
+      ContentType: contentType,
+    },
+  })
+
+  await upload.done()
+
+  return {
+    key: uniqueFileName,
+    url: new URL(uniqueFileName, env.CLOUDFLARE_PUBLIC_URL).toString(),
+  }
+}

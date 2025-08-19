@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from 'zod'
 
 export const envSchema = z.object({
   POSTGRES_PASSWORD: z.string(),
@@ -10,8 +10,8 @@ export const envSchema = z.object({
   CLOUDFLARE_ACCOUNT_ID: z.string(),
   CLOUDFLARE_ACCESS_KEY_ID: z.string(),
   CLOUDFLARE_SECRET_ACCESS_KEY: z.string(),
-  CLOUDFLARE_BUCKET_NAME: z.string(),
-  CLOUDFLARE_BUCKET_URL: z.url(),
+  CLOUDFLARE_BUCKET: z.string(),
+  CLOUDFLARE_PUBLIC_URL: z.url(),
 })
 
 export const env = envSchema.parse(process.env)

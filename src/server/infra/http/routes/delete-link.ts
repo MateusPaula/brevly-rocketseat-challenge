@@ -1,5 +1,5 @@
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
-import z from 'zod'
+import { z } from 'zod'
 import { deleteLink } from '@/server/functions/delete-link'
 import { isLeft, isRight, unwrapEither } from '../../shared/either'
 

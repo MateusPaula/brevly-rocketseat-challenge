@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
-import z from 'zod'
+import { z } from 'zod'
 import { getLinks } from '@/server/functions/get-links'
 import { unwrapEither } from '../../shared/either'
 

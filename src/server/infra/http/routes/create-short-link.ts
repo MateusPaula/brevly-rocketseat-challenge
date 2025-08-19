@@ -1,5 +1,5 @@
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
-import z from 'zod'
+import { z } from 'zod'
 
 import { createLink } from '@/server/functions/create-short-link'
 import { isRight, unwrapEither } from '../../shared/either'
