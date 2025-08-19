@@ -1,11 +1,12 @@
 import { randomUUID } from 'node:crypto'
+import { Readable } from 'node:stream'
 import { Upload } from '@aws-sdk/lib-storage'
 import { z } from 'zod'
 import { env } from '@/server/env'
 import { r2 } from './client'
 
 const uploadCsvToStorageInput = z.object({
-  content: z.string(),
+  contentStream: z.instanceof(Readable),
   contentType: z.string(),
   folder: z.enum(['downloads']),
   fileName: z.string(),
@@ -14,7 +15,7 @@ const uploadCsvToStorageInput = z.object({
 type UploadCsvToStorageInput = z.input<typeof uploadCsvToStorageInput>
 
 export async function uploadCsvToStorage(input: UploadCsvToStorageInput) {
-  const { content, contentType, folder, fileName } =
+  const { contentStream, contentType, folder, fileName } =
     uploadCsvToStorageInput.parse(input)
 
   const uniqueFileName = `${folder}/${randomUUID()}-${fileName}`
@@ -24,7 +25,7 @@ export async function uploadCsvToStorage(input: UploadCsvToStorageInput) {
     params: {
       Bucket: env.CLOUDFLARE_BUCKET,
       Key: uniqueFileName,
-      Body: content,
+      Body: contentStream,
       ContentType: contentType,
     },
   })
